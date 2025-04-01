@@ -1,4 +1,3 @@
-## main.ipynb
 import gradio as gr
 from utility.usercustom import *
 from utility.wordrank import *
@@ -21,6 +20,26 @@ def find_with_dfs_final(requested_word):
     for msg in find_with_dfs(requested_word):
         output.append(msg)
     return "".join(output)
+
+# 조건 초기화 함수 정의
+def reset_conditions():
+    # 글자순위 영역 초기화: 텍스트박스 비우고, 마크다운도 초기화하며, 영역은 숨김 처리
+    reset_word_rank_input = gr.update(value="")
+    reset_show_word_rank = gr.update(value="")
+    reset_UI_add_word_rank = gr.update(visible=False)
+    
+    # 유저커스텀 영역 초기화: 입력값을 비우고, 마크다운 및 UI 영역도 숨김 처리
+    reset_UI_show_user_custom = gr.update(visible=False)
+    reset_A_exist = gr.update(value="")
+    reset_A_None = gr.update(value="")
+    reset_B_start = gr.update(value="")
+    reset_B_end = gr.update(value="")
+    reset_C_option = gr.update(value="")
+    reset_show_user_custom = gr.update(value="")
+    
+    return (reset_word_rank_input, reset_show_word_rank, reset_UI_add_word_rank,
+            reset_UI_show_user_custom, reset_A_exist, reset_A_None, reset_B_start,
+            reset_B_end, reset_C_option, reset_show_user_custom)
 
 with gr.Blocks() as demo:
     with gr.Row():
@@ -56,9 +75,13 @@ with gr.Blocks() as demo:
                 
             with gr.Row():
                 with gr.Column(scale=1):
-                    word_input = gr.Textbox(label="시작단어")
+                    word_input = gr.Textbox(label="시작단어", elem_id="start_word")
                 with gr.Column(scale=1):
-                    button_find_with_dfs = gr.Button(value="탐색시작")
+                    button_find_with_dfs = gr.Button(value="탐색시작", elem_id="start_button")
+            
+            # 조건 초기화 버튼 추가
+            with gr.Row():
+                button_reset_conditions = gr.Button(value="조건 초기화")
 
         with gr.Column(scale=2):
             gr.Markdown('### 글자순위표')
@@ -96,6 +119,21 @@ with gr.Blocks() as demo:
          inputs=word_input,
          outputs=dfs_result
     )
+
+    # 조건 초기화 버튼 이벤트: 리셋 함수 호출하여 컴포넌트 초기화
+    button_reset_conditions.click(
+        fn=reset_conditions,
+        inputs=[],
+        outputs=[word_rank_input, show_word_rank, UI_add_word_rank, UI_show_user_custom,
+                 A_exist, A_None, B_start, B_end, C_option, show_user_custom]
+    )
+
+    # Add custom CSS to style the elements
+    demo.css = """
+    #start_button {
+        background-color: #ffe400;
+    }
+    """
 
 if __name__ == "__main__":
     demo.launch()
